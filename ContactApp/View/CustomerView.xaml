@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="ContactApp.View.CustomerView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ContactApp.View"
+      xmlns:validation="clr-namespace:ContactApp.Validation"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <Style TargetType="Label">
+            <Setter Property="Width" Value="100" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="20" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Margin" Value="0,0,5,0" />
+        </Style>
+
+        <!-- Handle Validation Errors-->
+        <Style x:Key="OnValidationError" TargetType="Button">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=PhoneNumberTextBox, Path=(Validation.HasError)}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding ElementName=PhoneNumberTextBox, Path=(Validation.HasError)}" Value="False">
+                    <Setter Property="IsEnabled" Value="True"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Input Customer Information -->
+        <Label Grid.Column="0" Grid.Row="0" Content="Name: "/>
+        <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding CustomerInfo.Name, UpdateSourceTrigger=PropertyChanged}" MaxLength="255"/>
+
+        <Label Grid.Column="0" Grid.Row="1" Content="Company: " />
+        <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding CustomerInfo.Company, UpdateSourceTrigger=PropertyChanged}" MaxLength="255"/>
+
+        <!-- Add Phone Number textbox with validation for numbers only-->
+        <Label Grid.Column="0" Grid.Row="2" Content="Phone Number: " />
+        <TextBox Grid.Column="1" Grid.Row="2" x:Name="PhoneNumberTextBox" MaxLength="255">
+            <TextBox.Text>
+                <Binding Path="CustomerInfo.PhoneNumber" UpdateSourceTrigger="PropertyChanged">
+                    <Binding.ValidationRules>
+                        <validation:PhoneNumberRule/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+
+        <Label Grid.Column="0" Grid.Row="3" Content="Address: " />
+        <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding CustomerInfo.Address, UpdateSourceTrigger=PropertyChanged}" MaxLength="255"/>
+
+        <Label Grid.Column="0" Grid.Row="4" VerticalAlignment="Top" Content="Notes: " />
+        <TextBox Grid.Column="1" Grid.Row="4" Height="Auto" Text="{Binding CustomerInfo.Notes}" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+
+        <Button Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Width="100" Height="20" Margin="5" Style="{StaticResource OnValidationError}"
+                Content="Save" Command="{Binding SaveCommand}"/>
+        
+        <!-- Display Customer Information -->
+        <DataGrid x:Name="CustomerGrid" ItemsSource="{Binding SavedCustomerInfo}" Grid.Row="6" Grid.ColumnSpan="2" Margin="5" AutoGenerateColumns="False" HeadersVisibility="Column"
+                  IsReadOnly="True" EnableColumnVirtualization="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="Auto"/>
+                <DataGridTextColumn Header="Company" Binding="{Binding Company}" Width="Auto"/>
+                <DataGridTextColumn Header="Phone Number" Binding="{Binding PhoneNumber}" Width="Auto"/>
+                <DataGridTextColumn Header="Address" Binding="{Binding Address}" Width="Auto"/>
+                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</UserControl>
