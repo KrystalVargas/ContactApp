@@ -9,6 +9,13 @@ namespace ContactApp.Database
     class CompanyDatabase : IDatabase
     {
         public String AddNewCompanyText = "Add New Company...";
+        private List<CompanyInfoModel> defaultCompanies = new List<CompanyInfoModel> {
+            new CompanyInfoModel { Company = "ACME Acids",          VendorCode = "A001" },
+            new CompanyInfoModel { Company = "Berenstain Biology",  VendorCode = "A002" },
+            new CompanyInfoModel { Company = "Flick's Fluidics",    VendorCode = "A003" },
+            new CompanyInfoModel { Company = "Radical Reagents",    VendorCode = "D004" },
+            new CompanyInfoModel { Company = "BBST Paper Products", VendorCode = "G065" }
+            };
 
         public void CreateDatabase()
         {
@@ -146,6 +153,17 @@ namespace ContactApp.Database
                 return true;
             else
                 return false;
+        }
+        // Fill Company list with master list when first created
+        private void AddDefaultCompanies()
+        {
+            foreach (CompanyInfoModel company in defaultCompanies)
+            {
+                if (!CompanyExists(company))
+                {
+                    SaveToDatabase(company);
+                }
+            }         
         }
     }
 }
