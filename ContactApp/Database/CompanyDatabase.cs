@@ -19,30 +19,38 @@ namespace ContactApp.Database
 
         public void CreateDatabase()
         {
-            // Create the connection.
-            using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
+            // Create Database if it doesn't exist
+            if (!DatabaseExists())
             {
-                String queryString = "IF NOT EXISTS (SELECT * FROM sys.tables WHERE name LIKE 'Companies') CREATE TABLE " +
-                    "Companies(Company varchar(255) NOT NULL," +
-                    "VendorCode varchar(4) NOT NULL)";
-
-                // Create a SqlCommand
-                using (SqlCommand sqlCommand = new SqlCommand(queryString, connection))
+                // Create the connection.
+                using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
                 {
-                    try
+                    String queryString = "CREATE TABLE Companies(Company varchar(255) NOT NULL, VendorCode varchar(4) NOT NULL)";
+
+                    // Create a SqlCommand
+                    using (SqlCommand sqlCommand = new SqlCommand(queryString, connection))
                     {
-                        connection.Open();
-                        sqlCommand.ExecuteNonQuery();
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show(e.Message);
-                    }
-                    finally
-                    {
-                        connection.Close();
+                        try
+                        {
+                            connection.Open();
+                            sqlCommand.ExecuteNonQuery();
+                            AddDefaultCompanies();
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show(e.Message);
+                        }
+                        finally
+                        {
+                            connection.Close();
+                        }
                     }
                 }
+            }          
+            // Fill Database if it is empty
+            else if (DatabaseEmpty())
+            {
+                AddDefaultCompanies();
             }
         }
 
@@ -119,7 +127,7 @@ namespace ContactApp.Database
             }
         }
 
-        public Boolean CompanyExist(CompanyInfoModel companyInfo)
+        public Boolean CompanyExists(CompanyInfoModel companyInfo)
         {
             int companyCount = 0;
             // Create the connection.
@@ -154,6 +162,73 @@ namespace ContactApp.Database
             else
                 return false;
         }
+
+        public Boolean DatabaseExists()
+        {
+            int databaseCount = 0;
+            // Create the connection.
+            using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
+            {
+                String queryString = "SELECT COUNT(1) FROM sys.tables WHERE name LIKE 'Companies'";
+
+                // Create a SqlCommand
+                using (SqlCommand sqlCommand = new SqlCommand(queryString, connection))
+                {
+                    try
+                    {
+                        connection.Open();
+                        databaseCount = Convert.ToInt32(sqlCommand.ExecuteScalar());
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.Message);
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+
+            if (databaseCount > 0)
+                return true;
+            else
+                return false;
+        }
+
+        public Boolean DatabaseEmpty()
+        {
+            int rowCount = 0;
+            // Create the connection.
+            using (SqlConnection connection = new SqlConnection(Properties.Settings.Default.connString))
+            {
+                String queryString = "SELECT COUNT(*) FROM Companies";
+
+                // Create a SqlCommand
+                using (SqlCommand sqlCommand = new SqlCommand(queryString, connection))
+                {
+                    try
+                    {
+                        connection.Open();
+                        rowCount = Convert.ToInt32(sqlCommand.ExecuteScalar());
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(e.Message);
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+
+            if (rowCount > 0)
+                return false;
+            else
+                return true;
+        }
+
         // Fill Company list with master list when first created
         private void AddDefaultCompanies()
         {
