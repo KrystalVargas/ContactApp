@@ -183,7 +183,7 @@ namespace ContactApp.ViewModel
             if (AddCompany)
             {
                 // Check if company is already in database
-                if (!CompanyDatabase.CompanyExist(NewCompanyInfo))
+                if (!CompanyDatabase.CompanyExists(NewCompanyInfo))
                 {
                     // Set Vendor Info to New Company
                     VendorInfo.Company = NewCompanyInfo.Company;
